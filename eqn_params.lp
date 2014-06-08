@@ -23,4 +23,10 @@ _number(integer(X))		:-	_integer(X).
 _number(rational(X,Y))	:-	_rational(X,Y).
 
 % every number can be a coefficient (change this to make only integers be coefficients, etc.
-_coef(X)				:-	_number(X).
+_coeff(X)				:-	_number(X).
+
+
+% initial number of children
+_childCount(2..max_terms).
+
+_degree(0..max_degree).

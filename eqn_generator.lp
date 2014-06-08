@@ -1,3 +1,12 @@
+% Armando Diaz Tolentino <ajdt@cs.washington.edu> 
+% 
+% This file generates equations using the given
+% definitions for the left/right side, operator nodes, and
+% polynomials.
+% The file eqn_params.lp contains parameters used by this
+% file.
+%
+
 % basic node attributes
 _side(left;right).
 _type(oper;poly).
@@ -5,18 +14,47 @@ _operator(add;mul;div).
 
 % nodes
 _nodeNum(1..42). % figure out better way to express this
-_node(id(Num, Side))	 		:-	_side(Side), _nodeNum(Num).
+_node(Num, Side)	 		:-	_side(Side), _nodeNum(Num).
 
-_validChildOf(Parent, Child)	:-	_nodeNum(Parent), _nodeNum(Child),
-									Child > Parent*(max_terms + aux_terms),
-									Child <= Parent*(max_terms + aux_terms) + (max_terms +aux_terms).
+_validChildOf(_node(Parent, Side), _node(Child, Side))	
+							:-	_node(Parent, Side), _node(Child, Side),
+								Child > Parent*(max_terms + aux_terms),
+								Child <= Parent*(max_terms + aux_terms) + (max_terms +aux_terms).
 
 _root(_node(1, left) ; _node(1, right) ). % represent the left and right sides
 
-% generating problems
+% node depth
+_nodeDepth(Root, 0)		:-	_root(Root).
+_nodeDepth(Child, X+1)	:-	_validChildOf(Parent, Child), _nodeDepth(Parent, X).
 
-% every root node is an active node
-_active(Node) : _root(Node).
 
-1 { _nodeType(Node, Type) : _type(Type) } 1 :- _active(Node).	% all active nodes have one type
-%1 { _nodeOper(Node_active(Node), _nodeType(Node, oper) 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATING PROBLEMS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+_active(Node) :- _root(Node).
+
+% node type
+1 { _nodeType(Node, Type) : _type(Type) } 1			:- _active(Node), _nodeDepth(Node, Depth), Depth < max_depth.
+ _nodeType(Node, poly)								:- _active(Node), _nodeDepth(Node, Depth), Depth >= max_depth.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% OPERATOR NODES  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+1 { _nodeOper(Node, Op) : _operator(Op) } 1			:-	_active(Node), _nodeType(Node, oper).
+1 { _numChildren(Node, Num) : _childCount(Num) } 1	:-	_active(Node), _nodeType(Node, oper), _nodeOper(Node, Op), Op != div.
+_numChildren(Node, 2)								:-	_active(Node), _nodeOper(Node, div).
+
+% activating children for operators
+_activeChild( _node(Parent, Side), _node(ChildID, Side) )	:-	_active(_node(Parent, Side)),
+														_numChildren(_node(Parent, Side), Num),
+														ChildCount = 1..Num,
+														ChildID = Parent*(max_terms + aux_terms) + ChildCount .
+_active(Child)	:-	_activeChild(Parent, Child).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MONOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO: try optimization, where only 10 or so polynom exist
+1 { _monomOf(Node, Coeff, Deg) : _coeff(Coeff) } 1	:- _active(Node), _nodeType(Node, poly), _degree(Deg).
+
+% TODO: delete later, only for debugging
+#show _active/1.
+#show _nodeType/2.
+#show _monomOf/3.
+#show _nodeOper/2.
+%#show _numChildren/2.
+%#show _root/1.
