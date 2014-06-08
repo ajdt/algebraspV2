@@ -13,7 +13,7 @@ _type(oper;poly).
 _operator(add;mul;div).
 
 % nodes
-_nodeNum(1..42). % figure out better way to express this
+_nodeNum(0..42). % figure out better way to express this
 _node(Num, Side)	 		:-	_side(Side), _nodeNum(Num).
 
 _validChildOf(_node(Parent, Side), _node(Child, Side))	
@@ -21,11 +21,11 @@ _validChildOf(_node(Parent, Side), _node(Child, Side))
 								Child > Parent*(max_terms + aux_terms),
 								Child <= Parent*(max_terms + aux_terms) + (max_terms +aux_terms).
 
-_root(_node(1, left) ; _node(1, right) ). % represent the left and right sides
+_root(_node(0, left) ; _node(0, right) ). % represent the left and right sides
 
 % node depth
-_nodeDepth(Root, 0)		:-	_root(Root).
-_nodeDepth(Child, X+1)	:-	_validChildOf(Parent, Child), _nodeDepth(Parent, X).
+_nodeDepth(Root, 0)			:-	_root(Root).
+_nodeDepth(Child, Depth+1)	:-	_validChildOf(Parent, Child), _nodeDepth(Parent, Depth).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATING PROBLEMS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,6 +37,7 @@ _active(Node) :- _root(Node).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% OPERATOR NODES  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 1 { _nodeOper(Node, Op) : _operator(Op) } 1			:-	_active(Node), _nodeType(Node, oper).
+% division nodes must have exactly two children, others can have any number of children
 1 { _numChildren(Node, Num) : _childCount(Num) } 1	:-	_active(Node), _nodeType(Node, oper), _nodeOper(Node, Op), Op != div.
 _numChildren(Node, 2)								:-	_active(Node), _nodeOper(Node, div).
 
@@ -53,8 +54,11 @@ _active(Child)	:-	_activeChild(Parent, Child).
 
 % TODO: delete later, only for debugging
 #show _active/1.
+%#show _numChildren/2.
+%#show _root/1.
+
+% needed for visualizer
+#show _activeChild/2.
 #show _nodeType/2.
 #show _monomOf/3.
 #show _nodeOper/2.
-%#show _numChildren/2.
-%#show _root/1.
