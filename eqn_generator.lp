@@ -16,6 +16,10 @@ _operator(add;mul;div).
 _nodeNum(0..42). % figure out better way to express this
 _node(Num, Side)	 		:-	_side(Side), _nodeNum(Num).
 
+_lessThan(_node(Num1, Side), _node(Num1, Side))		:-	_node(Num1, Side), 
+														_node(Num2, Side), 
+														Num1 < Num2.
+
 _validChildOf(_node(Parent, Side), _node(Child, Side))	
 							:-	_node(Parent, Side), _node(Child, Side),
 								Child > Parent*(max_terms + aux_terms),
@@ -48,8 +52,13 @@ _activeChild( _node(Parent, Side), _node(ChildID, Side) )	:-	_active(_node(Paren
 														ChildID = Parent*(max_terms + aux_terms) + ChildCount .
 _active(Child)	:-	_activeChild(Parent, Child).
 
+% add numerator and denominator predicates for div nodes
+_numDenom(Parent, Num, Denom)						:-	_nodeOper(Parent, div),
+														_activeChild(Parent, Num),
+														_activeChild(Parent, Denom),
+														_lessThan(Num, Denom). 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MONOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO: try optimization, where only 10 or so polynom exist
 1 { _monomOf(Node, Coeff, Deg) : _coeff(Coeff) } 1	:- _active(Node), _nodeType(Node, poly), _degree(Deg).
 
 % TODO: delete later, only for debugging
