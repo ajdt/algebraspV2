@@ -37,9 +37,13 @@ _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_introduce(Node, _field(Fie
 _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_update(Node, _field(FieldName, FieldValue), S),
 														_step(S).
 
-%selecting rules
+				%selecting rules
 % select no more than one action per step
 { _doAction(Action, S) : _applicable(Action, S) } 1 :- _step(S).
 :- _step(S), 2 { _doAction(_action(Name, Data), S) : _action(Name, Data) }.
-% polynomial rules can instantiate a _doAction() to force next action in a sequence of steps
+% NOTE: polynomial rules can instantiate a _doAction() to force next action in a sequence of steps
+
+				% ensure all steps are done first
+_actionForStep(S) :- _doAction(Action,S).
+:- _step(S), _step(S+1), not _actionForStep(S), _actionForStep(S+1).
 
