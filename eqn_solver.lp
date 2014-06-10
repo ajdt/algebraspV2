@@ -48,6 +48,9 @@ _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_update(Node, _field(FieldN
 _actionForStep(S) :- _doAction(Action,S).
 :- _step(S), _step(S+1), not _actionForStep(S), _actionForStep(S+1).
 
+% to project based on actions taken
+action(Name) :- _doAction(_action(Name, Data), S).
+
 % TODO: delete later, only for debugging
 #show action/1.
 %#show _numChildren/2.
