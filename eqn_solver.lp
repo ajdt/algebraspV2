@@ -10,8 +10,8 @@ _initially(Node, _field(active))					:-	_active(Node).
 _initially(Node, _field(nodetype, Type)) 			:-	_nodeType(Node, Type).
 _initially(Node, _field(nodeoper, Op)) 				:-	_nodeOper(Node, Op).
 _initially(Node, _field(numchildren, ChildCount)) 	:-	_numChildren(Node, ChildCount).
-_initially(Node, _field(monomOf, Coeff, Deg)) 		:-	_monomOf(Node, Coeff, Deg).
-_initially(Parent, _field(activeChild, Child)) 		:-	_activeChild(Parent, Child).
+_initially(Node, _field(monomof, monom(Coeff, Deg)))	:-	_monomOf(Node, Coeff, Deg).
+_initially(Parent, _field(activechild, Child)) 		:-	_activeChild(Parent, Child).
 
 _initially(Parent, _field(numer, Num))				:-	_numDenom(Parent, Num, Denom).
 _initially(Parent, _field(denom, Denom))			:-	_numDenom(Parent, Num, Denom).
@@ -47,3 +47,14 @@ _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_update(Node, _field(FieldN
 _actionForStep(S) :- _doAction(Action,S).
 :- _step(S), _step(S+1), not _actionForStep(S), _actionForStep(S+1).
 
+% TODO: delete later, only for debugging
+#show _active/1.
+%#show _numChildren/2.
+%#show _root/1.
+
+% needed for visualizer
+#show _activeChild/2.
+#show _nodeType/2.
+#show _monomOf/3.
+#show _nodeOper/2.
+#show _holds/3.

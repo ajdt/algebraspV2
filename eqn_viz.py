@@ -85,10 +85,10 @@ def formEqnString(predicates_list):
 			children[parent].append(child)
 		else :
 			continue
-	print 'types', types, '\n\n'
-	print 'operator', operator, '\n\n'
-	print 'mono', mono, '\n\n'
-	print 'children', children, '\n\n'
+	#print 'types', types, '\n\n'
+	#print 'operator', operator, '\n\n'
+	#print 'mono', mono, '\n\n'
+	#print 'children', children, '\n\n'
 	# print 
 	return eqnString(types, operator, mono, children)
 

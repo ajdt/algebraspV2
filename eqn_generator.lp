@@ -61,13 +61,3 @@ _numDenom(Parent, Num, Denom)						:-	_nodeOper(Parent, div),
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MONOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 1 { _monomOf(Node, Coeff, Deg) : _coeff(Coeff) } 1	:- _active(Node), _nodeType(Node, poly), _degree(Deg).
 
-% TODO: delete later, only for debugging
-#show _active/1.
-%#show _numChildren/2.
-%#show _root/1.
-
-% needed for visualizer
-#show _activeChild/2.
-#show _nodeType/2.
-#show _monomOf/3.
-#show _nodeOper/2.
