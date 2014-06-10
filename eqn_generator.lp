@@ -16,7 +16,7 @@ _operator(add;mul;div).
 _nodeNum(0..42). % figure out better way to express this
 _node(Num, Side)	 		:-	_side(Side), _nodeNum(Num).
 
-_lessThan(_node(Num1, Side), _node(Num1, Side))		:-	_node(Num1, Side), 
+_lessThan(_node(Num1, Side), _node(Num2, Side))		:-	_node(Num1, Side), 
 														_node(Num2, Side), 
 														Num1 < Num2.
 

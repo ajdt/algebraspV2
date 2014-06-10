@@ -11,14 +11,35 @@ _initially(Node, _field(nodetype, Type)) 			:-	_nodeType(Node, Type).
 _initially(Node, _field(nodeoper, Op)) 				:-	_nodeOper(Node, Op).
 _initially(Node, _field(numchildren, ChildCount)) 	:-	_numChildren(Node, ChildCount).
 _initially(Node, _field(monomOf, Coeff, Deg)) 		:-	_monomOf(Node, Coeff, Deg).
-_initially(Node, _field(activeChild, Child)) 		:-	_activeChild(Parent, Child).
+_initially(Parent, _field(activeChild, Child)) 		:-	_activeChild(Parent, Child).
 
-initially(ID, _field(numer, Num))					:-	_numDenom(Parent, Num, Denom).
-initially(ID, _field(denom, Denom))					:-	_numDenom(Parent, Num, Denom).
+_initially(Parent, _field(numer, Num))				:-	_numDenom(Parent, Num, Denom).
+_initially(Parent, _field(denom, Denom))			:-	_numDenom(Parent, Num, Denom).
 
 
-_holds(Fact, 1)	:-	_initially(Fact).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% FACTS BETWEEN STEPS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+_holds(Node, Field, 1)								:-	_initially(Node, Field).
 
-% questions:
-% is it a good idea to couple coef and deg, maybe best to keep them separate?
-% include predicates for numerator and denominator
+_holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_holds(Node, _field(FieldName, FieldValue), S),
+														_step(S),
+														not _remove(Node, FieldName, S).
+
+_holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_holds(Node, _field(FieldName, FieldValue), S),
+														_step(S),
+														not _update(Node, _field(FieldName, FieldValue), S).
+
+
+% 						### Introducing facts
+%--------------------------------------------------------------------------------
+% Note: to update a field means to remove old field and add the new field value
+_holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_introduce(Node, _field(FieldName, FieldValue), S),
+														_step(S).
+_holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_update(Node, _field(FieldName, FieldValue), S),
+														_step(S).
+
+%selecting rules
+% select no more than one action per step
+{ _doAction(Action, S) : _applicable(Action, S) } 1 :- _step(S).
+:- _step(S), 2 { _doAction(_action(Name, Data), S) : _action(Name, Data) }.
+% polynomial rules can instantiate a _doAction() to force next action in a sequence of steps
+
