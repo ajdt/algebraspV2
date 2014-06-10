@@ -19,7 +19,7 @@
 % numbers are integers and rationals
 _integer(-1*max_integer..max_integer).
 _rational(Num, Denom)	:-	_integer(Num), _integer(Denom), Denom != 0.
-_number(integer(X))		:-	_integer(X).
+_number(_integer(X))		:-	_integer(X).
 %_number(rational(X,Y))	:-	_rational(X,Y).		% makes grounding unnecessarily large, may not support rationals
 
 % every number can be a coefficient (change this to make only integers be coefficients, etc.

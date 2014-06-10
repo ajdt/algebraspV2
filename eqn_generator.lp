@@ -64,9 +64,11 @@ _termNum(1..max_degree+1).
 % decide how many terms polynomial has, then what degree terms are present, 
 % then what coefficients these terms have
 1 { _numTerms(Node, Num) : _termNum(Num) } 1		:-	_nodeType(Node, poly).
-NumTerms { _hasMonoWithDegree(Node, Deg) : _degree(Deg) } NumTerms	:-	_numTerms(Node, NumTerms).
-1 { _monomOf(Node, Coeff, Deg) : _coeff(Coeff) } 1	:-	_hasMonoWithDegree(Node, Deg).
+%NumTerms { _hasMonoWithDegree(Node, Deg) : _degree(Deg) } NumTerms	:-	_numTerms(Node, NumTerms).
+%1 { _monomOf(Node, Coeff, Deg) : _coeff(Coeff) } 1	:-	_hasMonoWithDegree(Node, Deg).
 
+NumTerms { _monomOf(Node, Coeff, Deg) : _coeff(Coeff), _degree(Deg) } NumTerms	
+													:-	_numTerms(Node, NumTerms).
 %1 { _monomOf(Node, Coeff, Deg) : _coeff(Coeff) } 1	:-	_active(Node), _nodeType(Node, poly), _degree(Deg).
 
 

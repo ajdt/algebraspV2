@@ -23,7 +23,7 @@ _holds(Node, Field, 1)								:-	_initially(Node, Field).
 
 _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_holds(Node, _field(FieldName, FieldValue), S),
 														_step(S+1),
-														not _remove(Node, FieldName, S).
+														not _remove(Node, _field(FieldName, FieldValue), S).
 
 _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_holds(Node, _field(FieldName, FieldValue), S),
 														_step(S+1),
@@ -41,7 +41,7 @@ _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_update(Node, _field(FieldN
 				%selecting rules
 % select no more than one action per step
 { _doAction(Action, S) : _applicable(Action, S) } 1 :- _step(S).
-:- _step(S), 2 { _doAction(_action(Name, Data), S) : _action(Name, Data) }.
+:- _step(Step), 2 { _doAction(Action, Step) : _applicable(Action, Step) }.
 % NOTE: polynomial rules can instantiate a _doAction() to force next action in a sequence of steps
 
 				% ensure all steps are done first
@@ -49,7 +49,7 @@ _actionForStep(S) :- _doAction(Action,S).
 :- _step(S), _step(S+1), not _actionForStep(S), _actionForStep(S+1).
 
 % TODO: delete later, only for debugging
-#show _active/1.
+#show action/1.
 %#show _numChildren/2.
 %#show _root/1.
 
