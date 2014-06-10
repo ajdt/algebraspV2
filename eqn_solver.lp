@@ -12,6 +12,7 @@ _initially(Node, _field(nodeoper, Op)) 				:-	_nodeOper(Node, Op).
 _initially(Node, _field(numchildren, ChildCount)) 	:-	_numChildren(Node, ChildCount).
 _initially(Node, _field(monomof, monom(Coeff, Deg)))	:-	_monomOf(Node, Coeff, Deg).
 _initially(Parent, _field(activechild, Child)) 		:-	_activeChild(Parent, Child).
+_initially(Node, _field(numterms, NumTerms)) 		:-	_numTerms(Node, NumTerms).
 
 _initially(Parent, _field(numer, Num))				:-	_numDenom(Parent, Num, Denom).
 _initially(Parent, _field(denom, Denom))			:-	_numDenom(Parent, Num, Denom).
@@ -21,11 +22,11 @@ _initially(Parent, _field(denom, Denom))			:-	_numDenom(Parent, Num, Denom).
 _holds(Node, Field, 1)								:-	_initially(Node, Field).
 
 _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_holds(Node, _field(FieldName, FieldValue), S),
-														_step(S),
+														_step(S+1),
 														not _remove(Node, FieldName, S).
 
 _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_holds(Node, _field(FieldName, FieldValue), S),
-														_step(S),
+														_step(S+1),
 														not _update(Node, _field(FieldName, FieldValue), S).
 
 
@@ -33,9 +34,9 @@ _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_holds(Node, _field(FieldNa
 %--------------------------------------------------------------------------------
 % Note: to update a field means to remove old field and add the new field value
 _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_introduce(Node, _field(FieldName, FieldValue), S),
-														_step(S).
+														_step(S+1).
 _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_update(Node, _field(FieldName, FieldValue), S),
-														_step(S).
+														_step(S+1).
 
 				%selecting rules
 % select no more than one action per step
