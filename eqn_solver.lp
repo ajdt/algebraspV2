@@ -23,10 +23,7 @@ _holds(Node, Field, 1)								:-	_initially(Node, Field).
 
 _holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_holds(Node, _field(FieldName, FieldValue), S),
 														_step(S+1),
-														not _remove(Node, _field(FieldName, FieldValue), S).
-
-_holds(Node, _field(FieldName, FieldValue), S+1) 	:-	_holds(Node, _field(FieldName, FieldValue), S),
-														_step(S+1),
+														not _remove(Node, _field(FieldName, FieldValue), S),
 														not _update(Node, _field(FieldName, FieldValue), S).
 
 

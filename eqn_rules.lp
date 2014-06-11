@@ -10,8 +10,8 @@
 % helpers:
 
 % node and integer properties
-_sum(_number(_integer(Coeff1)), _number(_integer(Coeff2)), _number(_integer(Coeff1 + Coeff2))) 
-													:-  _number(_integer(Coeff1)), _number(_integer(Coeff2)).
+_sum(_integer(Coeff1), _integer(Coeff2), _integer(Coeff1 + Coeff2)) 
+													:-  _integer(Coeff1), _integer(Coeff2).
 _unequal(Poly1, Poly2, S)							:-	_holds(Poly1, _field(monomof, monom(Coeff, Deg)), S),
 														_holds(Poly2, _field(active), S),
 														not _holds(Poly2, _field(monomof, monom(Coeff, Deg)), S),
@@ -19,14 +19,14 @@ _unequal(Poly1, Poly2, S)							:-	_holds(Poly1, _field(monomof, monom(Coeff, De
 
 % manipulating nodes
 _deleteNode(Node, S)								:-	_deleteNodeAndChildren(Node, S).
-_deleteNode(Child, S)								:-	_deleteNodeAndChildren(Node, S),
+_deleteNodeAndChildren(Child, S)					:-	_deleteNodeAndChildren(Node, S),
 														_holds(Node, _field(activechild, Child), S).
 _remove(Node, Field, S)								:-	_deleteNode(Node, S),
 														_holds(Node, Field, S).
 
 													% inheriting from 1
-_introduce(Frac, _field(nodetype, poly)) 			:-	_inheritFromOne(Frac, S).
-_introduce(Frac, _field(monomof, monom(_number(_integer(1)))), S) 
+_introduce(Frac, _field(nodetype, poly), S) 		:-	_inheritFromOne(Frac, S).
+_introduce(Frac, _field(monomof, monom(_integer(1))), S) 
 													:-	_inheritFromOne(Frac, S).
 _introduce(Frac, _field(numterms, 1), S)			:-	_inheritFromOne(Frac, S).
 _introduce(Frac, _field(active), S)					:-	_inheritFromOne(Frac, S).
@@ -69,12 +69,11 @@ _remove(Poly, _field(monomof,monom(Coeff2, Deg)), S)
 _applicable(_action(addIdent, _data(Poly, Deg)), S)	:-	_holds(Poly, _field(monomof, monom(_integer(0), Deg)), S),
 														not _holds(Poly, _field(numterms, 1), S). % has more than one child
 % 						### APPLYING THE RULE ###
-_remove(Poly, _field(monomof, monom(_number(_integer(0)), Deg)), S) 
+_remove(Poly, _field(monomof, monom(_integer(0), Deg)), S) 
 													:-	_doAction(_action(addIdent, _data(Poly, Deg)), S).
 % delete the monomial and update term count
 _update(Poly, _field(numterms, Terms - 1), S)		:-	_doAction(_action(addIdent, _data(Poly, Deg)), S),
 														_holds(Poly, _field(numterms, Terms), S).
-
 % 						### APPLYING THE RULE ###
 % add the two monomials together, and introduce their sum
 %================================================================================
@@ -94,9 +93,6 @@ _applicable(_action(divInverse, _data(Frac)), S)	:-	_holds(Frac, _field(numer, N
 _deleteNodeAndChildren(Frac, S) 					:-	_doAction(_action(divInverse, _data(Frac)), S).
 _inheritFromOne(Frac, S) 							:-	_doAction(_action(divInverse, _data(Frac)), S).
 
-__deleteNodeAndChildren(Child, S)					:-	_deleteNodeAndChildren(Frac, S),
-														_holds(Frac, _field(activechild, Child), S).
-
 %================================================================================
 % multIdentity: a*x^b * 1 ----> a*x^b
 %================================================================================
@@ -104,6 +100,7 @@ __deleteNodeAndChildren(Child, S)					:-	_deleteNodeAndChildren(Frac, S),
 %
 _applicable(_action(multIdent, _data(MultNode, ChildIdent)), S)
 													:-	_holds(MultNode, _field(activechild, ChildIdent),S),
+														_holds(MultNode, _field(nodeoper, mul), S),
 														_holds(MultNode, _field(numchildren, Children), S),
 														Children > 1,
 														_holds(ChildIdent, _field(numterms, 1), S),
