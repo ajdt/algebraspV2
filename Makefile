@@ -2,7 +2,8 @@ PARAMS=eqn_params.lp
 GEN=eqn_generator.lp 
 SOLVER=eqn_solver.lp
 RULES=eqn_rules.lp
-GRINGOFILES=$(PARAMS) $(GEN) $(SOLVER) $(RULES)
+HELPER=eqn_helpers.lp
+GRINGOFILES=$(PARAMS) $(GEN) $(SOLVER) $(RULES) $(HELPER)
 VIZ=tr -d '_' | python eqn_viz.py
 
 GROUNDFILE = grounding.log

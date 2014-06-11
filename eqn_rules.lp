@@ -7,37 +7,6 @@
 % and the actions to perform if the rule is fired.
 %
 
-% helpers:
-
-% node and integer properties
-_notZero(Poly, S)									:-	_holds(Poly, _field(monomof, MonomID), S), not _zeroMonom(MonomID). 
-_isZero(Poly, S)									:-	_holds(Poly, _field(nodetype, poly), S),
-														not _notZero(Poly,S).
-_unequal(Poly1, Poly2, S)							:-	_holds(Poly1, _field(monomof, MonomID), S),
-														_holds(Poly2, _field(active), S),
-														not _holds(Poly2, _field(monomof, MonomID), S),
-														Poly1 != Poly2.
-_unequal(Poly2, Poly1, S)							:-	_unequal(Poly1, Poly2, S).
-
-% manipulating nodes
-_deleteNode(Node, S)								:-	_deleteNodeAndChildren(Node, S).
-_deleteNodeAndChildren(Child, S)					:-	_deleteNodeAndChildren(Node, S),
-														_holds(Node, _field(activechild, Child), S).
-_remove(Node, Field, S)								:-	_deleteNode(Node, S),
-														_holds(Node, Field, S).
-
-													% inheriting from 1
-_introduce(Frac, _field(nodetype, poly), S) 		:-	_inheritFromOne(Frac, S).
-_introduce(Frac, _field(monomof, 10), S) 			:-	_inheritFromOne(Frac, S).
-_introduce(Frac, _field(numterms, 1), S)			:-	_inheritFromOne(Frac, S).
-_introduce(Frac, _field(active), S)					:-	_inheritFromOne(Frac, S).
-
-% deleteChildNode -- delete subtree rooted at child position
-_deleteNodeAndChildren(Child, S)					:-	_deleteChildNode(Parent, Child, S).
-_remove(Parent, _field(activechild, Child), S) 		:-	_deleteChildNode(Parent, Child, S).
-_update(Parent, _field(numchildren, Children - 1), S) 
-													:-	_deleteChildNode(Parent, Child, S),
-														_holds(Parent, _field(numchildren, Children), S).
 %================================================================================
 % addCommonTerms: a*x^b + c*x^b ----> (a+c)*x^b, 2 Cases
 %================================================================================
@@ -57,8 +26,6 @@ _remove(Poly, _field(monomof,Mono1), S)
 													:-	_doAction(_action(addCommTerms, _data(Poly, Mono1, Mono2)), S).
 _remove(Poly, _field(monomof,Mono2), S) 	
 													:-	_doAction(_action(addCommTerms, _data(Poly, Mono1, Mono2)), S).
-
-
 %================================================================================
 %================================================================================
 
@@ -80,8 +47,6 @@ _applicable(_action(addIdent, _data(Poly)), S)		:-	_holds(Poly, _field(monomof, 
 % delete the monomial and update term count
 _update(Poly, _field(numterms, Terms - 1), S)		:-	_doAction(_action(addIdent, _data(Poly)), S),
 														_holds(Poly, _field(numterms, Terms), S).
-% 						### APPLYING THE RULE ###
-% add the two monomials together, and introduce their sum
 %================================================================================
 %================================================================================
 
@@ -115,7 +80,5 @@ _applicable(_action(multIdent, _data(MultNode, ChildIdent)), S)
 														_holds(ChildIdent, _field(monomof, 10), S).
 % 						### APPLYING THE RULE ###
 _deleteChildNode(MultNode, ChildIdent, S) 			:-	_doAction(_action(multIdent, _data(MultNode, ChildIdent)), S).
-
-% code for removing a child from a tree
-
-:- not action(divInverse).
+%================================================================================
+%================================================================================

@@ -16,14 +16,6 @@ _operator(add;mul;div).
 _nodeNum(0..42). % figure out better way to express this
 _node(Num, Side)	 		:-	_side(Side), _nodeNum(Num).
 
-_lessThan(_node(Num1, Side), _node(Num2, Side))		:-	_node(Num1, Side), 
-														_node(Num2, Side), 
-														Num1 < Num2.
-
-_validChildOf(_node(Parent, Side), _node(Child, Side))	
-							:-	_node(Parent, Side), _node(Child, Side),
-								Child > Parent*(max_terms + aux_terms),
-								Child <= Parent*(max_terms + aux_terms) + (max_terms +aux_terms).
 
 _root(_node(0, left) ; _node(0, right) ). % represent the left and right sides
 
@@ -71,14 +63,6 @@ _monoID(MonoID)					:-	_basicMonoID(MonoID).
 %_overflowCoef(Coef1*Coef2)		:-	_coeff(Coef1), _coeff(Coef2).
 %_monoID(Coef*10 + Deg)			:-	_overflowCoef(Coef), _degree(Deg).
 %_monoData(MonoID, Coef, Deg)	:-	_overflowCoef(Coef), _degree(Deg), MonoID = Coef*10 + Deg.
-
-% monomial helpers, move these to a different file later
-%_monoSum(Mono1, Mono2, Sum)		:-	_monoData(Mono1, Coef1, Deg), _monoData(Mono2, Coef2, Deg),
-%									Sum = (Coef1+Coef2)*10 + Deg.
-_sameDeg(Mono1, Mono2)			:-	_monoData(Mono1, Coef1, Deg), _monoData(Mono2, Coef2, Deg).
-_monoSum(Mono1, Mono2, Sum)		:-	_monoData(Mono1, Coef1, Deg), _monoData(Mono2, Coef2, Deg),
-									_monoID(Sum),
-									Sum = (Coef1+Coef2)*10 + Deg.
 
 _termNum(1..max_degree+1).
 
