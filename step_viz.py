@@ -32,7 +32,7 @@ def wrapWithHolds(parser):
 
 int_parser		=  Word(nums +'-')
 rat_parser		=  'rational(' + Word(nums +'-') + ',' + Word(nums +'-') + ')'
-int_monom		= 'monom(' + int_parser + ',' + Word(nums) + ')'
+int_monom		=	Word(nums + '-')
 rat_monom		= 'monom(' + rat_parser + ',' + Word(nums) + ')'
 node_parser		= 'node(' + Word(nums) + ',' + Word(alphas) + ')'
 
@@ -80,9 +80,8 @@ def formEqnString(predicates_list):
 			continue
 		elif match == mono_parser_int:
 			step, node, aux = shaveHoldsReturnStep(parse)
-			coef = aux[2]
-			deg = aux[4]
-			mono[step][node].append(coef + 'x^' + deg)
+			monoID = int(aux[1])
+			mono[step][node].append(monoID)
 		elif match == mono_parser_rat:
 			step, node, aux = shaveHoldsReturnStep(parse)
 			num, denom = aux[3], aux[5]

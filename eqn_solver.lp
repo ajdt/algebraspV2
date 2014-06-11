@@ -10,7 +10,7 @@ _initially(Node, _field(active))					:-	_active(Node).
 _initially(Node, _field(nodetype, Type)) 			:-	_nodeType(Node, Type).
 _initially(Node, _field(nodeoper, Op)) 				:-	_nodeOper(Node, Op).
 _initially(Node, _field(numchildren, ChildCount)) 	:-	_numChildren(Node, ChildCount).
-_initially(Node, _field(monomof, monom(Coeff, Deg)))	:-	_monomOf(Node, Coeff, Deg).
+_initially(Node, _field(monomof, MonoID))			:-	_monomOf(Node, MonoID).
 _initially(Parent, _field(activechild, Child)) 		:-	_activeChild(Parent, Child).
 _initially(Node, _field(numterms, NumTerms)) 		:-	_numTerms(Node, NumTerms).
 
@@ -56,6 +56,6 @@ action(Name) :- _doAction(_action(Name, Data), S).
 % needed for visualizer
 #show _activeChild/2.
 #show _nodeType/2.
-#show _monomOf/3.
+#show _monomOf/2.
 #show _nodeOper/2.
 #show _holds/3.

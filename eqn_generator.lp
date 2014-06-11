@@ -58,7 +58,28 @@ _numDenom(Parent, Num, Denom)						:-	_nodeOper(Parent, div),
 														_activeChild(Parent, Denom),
 														_lessThan(Num, Denom). 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MONOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% defining monomials
+_zeroMonom(0..max_degree).		% these numbers are assigned to monomial with zero coeff
+_basicMonoID(Coef*10 + Deg)		:-	_coeff(Coef), _degree(Deg).
+_monoData(MonoID, Coef, Deg)	:-	_coeff(Coef), _degree(Deg), MonoID = Coef*10 + Deg.
+_monoID(MonoID)					:-	_basicMonoID(MonoID).
+
+% overflow monomials, not used during testing
+
+%_overflowCoef(Coef1+Coef2)		:-	_coeff(Coef1), _coeff(Coef2).
+%_overflowCoef(Coef1*Coef2)		:-	_coeff(Coef1), _coeff(Coef2).
+%_monoID(Coef*10 + Deg)			:-	_overflowCoef(Coef), _degree(Deg).
+%_monoData(MonoID, Coef, Deg)	:-	_overflowCoef(Coef), _degree(Deg), MonoID = Coef*10 + Deg.
+
+% monomial helpers, move these to a different file later
+%_monoSum(Mono1, Mono2, Sum)		:-	_monoData(Mono1, Coef1, Deg), _monoData(Mono2, Coef2, Deg),
+%									Sum = (Coef1+Coef2)*10 + Deg.
+_sameDeg(Mono1, Mono2)			:-	_monoData(Mono1, Coef1, Deg), _monoData(Mono2, Coef2, Deg).
+_monoSum(Mono1, Mono2, Sum)		:-	_monoData(Mono1, Coef1, Deg), _monoData(Mono2, Coef2, Deg),
+									_monoID(Sum),
+									Sum = (Coef1+Coef2)*10 + Deg.
+
 _termNum(1..max_degree+1).
 
 % decide how many terms polynomial has, then what degree terms are present, 
@@ -67,7 +88,7 @@ _termNum(1..max_degree+1).
 %NumTerms { _hasMonoWithDegree(Node, Deg) : _degree(Deg) } NumTerms	:-	_numTerms(Node, NumTerms).
 %1 { _monomOf(Node, Coeff, Deg) : _coeff(Coeff) } 1	:-	_hasMonoWithDegree(Node, Deg).
 
-NumTerms { _monomOf(Node, Coeff, Deg) : _coeff(Coeff), _degree(Deg) } NumTerms	
+NumTerms { _monomOf(Node, MonoID) : _basicMonoID(MonoID) } NumTerms	
 													:-	_numTerms(Node, NumTerms).
 %1 { _monomOf(Node, Coeff, Deg) : _coeff(Coeff) } 1	:-	_active(Node), _nodeType(Node, poly), _degree(Deg).
 

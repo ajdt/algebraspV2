@@ -22,7 +22,7 @@ from pyparsing import Word, alphas, nums, ParseException
 # values is a list of dictionaries, each dictionary contains one solution.
 # each dictionary has one key called 'Value' which refers to a list of predicates and their values
 
-int_parser		=  'integer(' + Word(nums +'-') + ')'
+int_parser		=  Word(nums +'-')
 rat_parser		=  'rational(' + Word(nums +'-') + ',' + Word(nums +'-') + ')'
 node_parser		= 'node(' + Word(nums) + ',' + Word(alphas) + ')'
 mono_parser_int = 'monomOf(' + node_parser + ',' + int_parser +',' + Word(nums) +')'
@@ -31,6 +31,24 @@ type_parser		= 'nodeType(' + node_parser + ',' + Word(alphas) + ')'
 oper_parser		= 'nodeOper(' + node_parser + ',' + Word(alphas) + ')'
 child_parser 	= 'activeChild(' + node_parser + ',' + node_parser +')'
 op_symbols 		= {'add' : '+' , 'div' : '/' , 'mul' : '*' }
+
+def getMonoMapping():
+	max_coeff, max_deg	= 5, 3
+	key = lambda c, d : c*10+d
+	value = lambda c, d : str(c) + 'x^' + str(d)
+	coeffs, degrees = range(-1*max_coeff, max_coeff+1), range(max_deg+1)
+	mapping = {}
+	for c in coeffs:
+		for d in degrees:
+			mapping[key(c,d)] = value(c,d)
+	for c1 in coeffs:
+		for c2 in coeffs:
+			for d in degrees:
+				mapping[ key(c1+c2, d) ] = value(c1+c2, d)
+				mapping[ key(c1*c2, d) ] = value(c1*c2, d)
+	return mapping
+
+MONO_MAPPINGS = getMonoMapping()
 
 def onFail(x,y,z,w):
 	return None
@@ -62,9 +80,8 @@ def formEqnString(predicates_list):
 			continue
 		elif match == mono_parser_int:
 			node = ''.join(parse[1:6])
-			coef = parse[8]
-			deg = parse[11]
-			mono[node].append(coef + 'x^' + deg)
+			monoID = int(parse[7])
+			mono[node].append(monoID)
 		elif match == mono_parser_rat:
 			node = ''.join(parse[1:6])
 			num, denom = parse[8], parse[10]
@@ -114,7 +131,8 @@ def formPolyString(types, operator, mono, children, root):
 	return '(' + op_symbols[operator[root]].join(child_strings) + ')'
 
 def makePolynomial(nodeName, mono):
-	return '+'.join(mono[nodeName])
+	monomials = [ MONO_MAPPINGS[m]  for m in mono[nodeName] ]
+	return '+'.join(monomials)
 
 def main():
 	clasp_output = ''.join(sys.stdin.xreadlines())

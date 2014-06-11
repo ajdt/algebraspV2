@@ -10,12 +10,12 @@
 % helpers:
 
 % node and integer properties
-_notZero(Poly, S)									:-	_holds(Poly, _field(monomof, monom(Coeff, Deg)), S), Coeff != 0.
+_notZero(Poly, S)									:-	_holds(Poly, _field(monomof, MonomID), S), not _zeroMonom(MonomID). 
 _isZero(Poly, S)									:-	_holds(Poly, _field(nodetype, poly), S),
 														not _notZero(Poly,S).
-_unequal(Poly1, Poly2, S)							:-	_holds(Poly1, _field(monomof, monom(Coeff, Deg)), S),
+_unequal(Poly1, Poly2, S)							:-	_holds(Poly1, _field(monomof, MonomID), S),
 														_holds(Poly2, _field(active), S),
-														not _holds(Poly2, _field(monomof, monom(Coeff, Deg)), S),
+														not _holds(Poly2, _field(monomof, MonomID), S),
 														Poly1 != Poly2.
 _unequal(Poly2, Poly1, S)							:-	_unequal(Poly1, Poly2, S).
 
@@ -28,7 +28,7 @@ _remove(Node, Field, S)								:-	_deleteNode(Node, S),
 
 													% inheriting from 1
 _introduce(Frac, _field(nodetype, poly), S) 		:-	_inheritFromOne(Frac, S).
-_introduce(Frac, _field(monomof, monom(1, 0)), S) 	:-	_inheritFromOne(Frac, S).
+_introduce(Frac, _field(monomof, 10), S) 			:-	_inheritFromOne(Frac, S).
 _introduce(Frac, _field(numterms, 1), S)			:-	_inheritFromOne(Frac, S).
 _introduce(Frac, _field(active), S)					:-	_inheritFromOne(Frac, S).
 
@@ -43,20 +43,20 @@ _update(Parent, _field(numchildren, Children - 1), S)
 %================================================================================
 % 						### RULE CONDITIONS ###
 % there's an add poly node with two children that are monomials of the same degree
-_applicable(_action(addCommTerms, _data(Poly, Coeff1, Coeff2, Deg)), S)
-													:-	_holds(Poly, _field(monomof, monom(Coeff1, Deg)), S),
-														_holds(Poly, _field(monomof, monom(Coeff2, Deg)), S),
-														Coeff1 != Coeff2 .
+_applicable(_action(addCommTerms, _data(Poly, MonoID1, MonoID2)), S)
+													:-	_holds(Poly, _field(monomof, MonoID1), S),
+														_holds(Poly, _field(monomof, MonoID2), S),
+														_sameDeg(MonoID1, MonoID2).
 % 						### APPLYING THE RULE ###
 % add the two monomials together, and introduce their sum
-_introduce(Poly, _field(monomof,monom(Sum, Deg)), S) 	
-													:-	_doAction(_action(addCommTerms, _data(Poly, Coeff1, Coeff2, Deg)), S),
-														Sum = Coeff1 + Coeff2.
+_introduce(Poly, _field(monomof,Sum), S) 	
+													:-	_doAction(_action(addCommTerms, _data(Poly, Mono1, Mono2)), S),
+														_monoSum(Mono1, Mono2, Sum).
 % remove old monomials
-_remove(Poly, _field(monomof,monom(Coeff1, Deg)), S) 	
-													:-	_doAction(_action(addCommTerms, _data(Poly, Coeff1, Coeff2, Deg)), S).
-_remove(Poly, _field(monomof,monom(Coeff2, Deg)), S) 	
-													:-	_doAction(_action(addCommTerms, _data(Poly, Coeff1, Coeff2, Deg)), S).
+_remove(Poly, _field(monomof,Mono1), S) 	
+													:-	_doAction(_action(addCommTerms, _data(Poly, Mono1, Mono2)), S).
+_remove(Poly, _field(monomof,Mono2), S) 	
+													:-	_doAction(_action(addCommTerms, _data(Poly, Mono1, Mono2)), S).
 
 
 %================================================================================
@@ -67,13 +67,18 @@ _remove(Poly, _field(monomof,monom(Coeff2, Deg)), S)
 %================================================================================
 % 						### RULE CONDITIONS ###
 %
-_applicable(_action(addIdent, _data(Poly, Deg)), S)	:-	_holds(Poly, _field(monomof, monom(0, Deg)), S),
+_applicable(_action(addIdent, _data(Poly)), S)		:-	_holds(Poly, _field(monomof, MonoID), S),
+														_zeroMonom(MonoID), % has more than one child
 														not _holds(Poly, _field(numterms, 1), S). % has more than one child
 % 						### APPLYING THE RULE ###
-_remove(Poly, _field(monomof, monom(0, Deg)), S) 
-													:-	_doAction(_action(addIdent, _data(Poly, Deg)), S).
+1 { _remove(Poly, _field(monomof, MonoID), S) :  	
+									_holds(Poly, _field(monomof, MonoID), S),
+									_zeroMonom(MonoID) } 1
+													:-	_doAction(_action(addIdent, _data(Poly)), S).
+														
+														
 % delete the monomial and update term count
-_update(Poly, _field(numterms, Terms - 1), S)		:-	_doAction(_action(addIdent, _data(Poly, Deg)), S),
+_update(Poly, _field(numterms, Terms - 1), S)		:-	_doAction(_action(addIdent, _data(Poly)), S),
 														_holds(Poly, _field(numterms, Terms), S).
 % 						### APPLYING THE RULE ###
 % add the two monomials together, and introduce their sum
@@ -107,10 +112,9 @@ _applicable(_action(multIdent, _data(MultNode, ChildIdent)), S)
 														_holds(MultNode, _field(numchildren, Children), S),
 														Children > 1,
 														_holds(ChildIdent, _field(numterms, 1), S),
-														_holds(ChildIdent, _field(monomof, monom(1, Deg)), S),
-														_degree(Deg).
+														_holds(ChildIdent, _field(monomof, 10), S).
 % 						### APPLYING THE RULE ###
-_deleteChildNode(MultNode, ChildIdent, S) 			:-	_applicable(_action(multIdent, _data(MultNode, ChildIdent)), S).
+_deleteChildNode(MultNode, ChildIdent, S) 			:-	_doAction(_action(multIdent, _data(MultNode, ChildIdent)), S).
 
 % code for removing a child from a tree
 
