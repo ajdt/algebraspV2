@@ -30,7 +30,7 @@ def wrapField(field_name, field_parser):
 def wrapWithHolds(parser):
 	return 'holds(' + node_parser + ',' + parser + ',' + Word(nums) + ')'
 
-int_parser		=  'integer(' + Word(nums +'-') + ')'
+int_parser		=  Word(nums +'-')
 rat_parser		=  'rational(' + Word(nums +'-') + ',' + Word(nums +'-') + ')'
 int_monom		= 'monom(' + int_parser + ',' + Word(nums) + ')'
 rat_monom		= 'monom(' + rat_parser + ',' + Word(nums) + ')'
@@ -80,9 +80,8 @@ def formEqnString(predicates_list):
 			continue
 		elif match == mono_parser_int:
 			step, node, aux = shaveHoldsReturnStep(parse)
-			node = ''.join(parse[1:6])
-			coef = aux[3]
-			deg = aux[6]
+			coef = aux[2]
+			deg = aux[4]
 			mono[step][node].append(coef + 'x^' + deg)
 		elif match == mono_parser_rat:
 			step, node, aux = shaveHoldsReturnStep(parse)
