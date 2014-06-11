@@ -10,10 +10,14 @@
 % helpers:
 
 % node and integer properties
+_notZero(Poly, S)									:-	_holds(Poly, _field(monomof, monom(Coeff, Deg)), S), Coeff != 0.
+_isZero(Poly, S)									:-	_holds(Poly, _field(nodetype, poly), S),
+														not _notZero(Poly,S).
 _unequal(Poly1, Poly2, S)							:-	_holds(Poly1, _field(monomof, monom(Coeff, Deg)), S),
 														_holds(Poly2, _field(active), S),
 														not _holds(Poly2, _field(monomof, monom(Coeff, Deg)), S),
 														Poly1 != Poly2.
+_unequal(Poly2, Poly1, S)							:-	_unequal(Poly1, Poly2, S).
 
 % manipulating nodes
 _deleteNode(Node, S)								:-	_deleteNodeAndChildren(Node, S).
@@ -83,6 +87,8 @@ _update(Poly, _field(numterms, Terms - 1), S)		:-	_doAction(_action(addIdent, _d
 %
 _applicable(_action(divInverse, _data(Frac)), S)	:-	_holds(Frac, _field(numer, Num), S),
 														_holds(Frac, _field(denom, Denom), S),
+														not _isZero(Denom,S),
+														not _isZero(Num,S),
 														not _unequal(Num, Denom, S).
 
 	
@@ -108,4 +114,4 @@ _deleteChildNode(MultNode, ChildIdent, S) 			:-	_applicable(_action(multIdent, _
 
 % code for removing a child from a tree
 
-%:- not action(addIdent).
+:- not action(divInverse).

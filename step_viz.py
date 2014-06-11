@@ -108,11 +108,11 @@ def formEqnString(predicates_list):
 
 	# create a string containing all solve steps
 	eqn_steps = []
-	fmt_step = lambda step_no, step: str(step_no) + ':' + step + '\n'
+	fmt_step = lambda step_no, step: str(step_no) + ':' + step 
 	for step in sorted(list(steps)):
 		eqn_steps.append(fmt_step(step, eqnString(types[step], operator[step], mono[step], children[step])))
 
-	return '\n'.join(eqn_steps)
+	return '\n'.join(eqn_steps + ['_' * 30] ) 
 
 def main():
 	clasp_output = ''.join(sys.stdin.xreadlines())
