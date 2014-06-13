@@ -65,7 +65,7 @@ _update(Parent, _field(numchildren, Children - 1), S)
 _inheritFromAndDelete(Parent, Child2, S)
 													:-	_deleteChildNode(Parent, Child, S),
 														_holds(Parent, _field(numchildren, 2), S),
-														_holds(Parent, _field(activeChild, Child2), S),
+														_holds(Parent, _field(activechild, Child2), S),
 														Child != Child2.
 _inheritFrom(Inheritor, Original, S)				:-	_inheritFromAndDelete(Inheritor, Original, S).
 _deleteNodeAndChildren(Original, S)					:-	_inheritFromAndDelete(Inheritor, Original, S).
@@ -80,6 +80,8 @@ _introduce(ToInherit, _field(FieldName, FieldValue), S)
 _inheritFrom(InheritChild, OrigChild, S)	
 													:-	_inheritFrom(_node(InheritNum, ISide), _node(OrigNum, OrigSide), S),
 														_holds(Original, _field(activechild, _node(OrigChildNum, OrigSide)), S),
+														_node(InheritNum, ISide), % needed to avoid infinite grounding 
+														_node(OrigNum, OrigSide),
 														InheritChildNum = OrigChildNum - OrigNum*(max_terms + aux_terms) + InheritNum*(max_terms + aux_terms),
 														InheritChild = _node(InheritChildNum, ISide),
 														OrigChild = _node(OrigChildNum, OrigSide).

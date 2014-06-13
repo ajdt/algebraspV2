@@ -17,46 +17,46 @@ _applicable(_action(fracCancel, _data(CTermTop, CTermBottom)), S)
 									% constraint for num children?
 									_holds(Num, _field(activechild, CTermTop), S),
 									_holds(Denom, _field(activechild, CTermBottom), S),
-									_equal(CTermTop, CTermBottom, S).
+									not _unequal(CTermTop, CTermBottom, S).
 
 % 						### APPLYING THE RULE ###
 _deleteChildNode(Num, CTermTop, S)		:-	_doAction(_action(fracCancel, _data(CTermTop, CTermBottom)), S),
-											_holds(Num, _field(activeChild, CTermTop), S).
+											_holds(Num, _field(activechild, CTermTop), S).
 _deleteChildNode(Denom, CTermBottom, S)	:-	_doAction(_action(fracCancel, _data(CTermTop, CTermBottom)), S),
-											_holds(Denom, _field(activeChild, CTermBottom), S).
+											_holds(Denom, _field(activechild, CTermBottom), S).
 %================================================================================
 %================================================================================
 
 %================================================================================
 % AddfracSameDenom: A/B + C/B--> (A+C)/B
 %================================================================================
-_applicable(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S)	
-								:-	_holds(PlusNode, _field(nodeoper, add), S),
-									_holds(PlusNode, _field(activechild, DivLeft), S),
-									_holds(PlusNode, _field(activechild, DivRight), S),
-									_holds(DivLeft, _field(nodeoper, div), S),
-									_holds(DivRight, _field(nodeoper, div), S),
-									_holds(DivLeft, _field(denom, BTermLeft), S),
-									_holds(DivRight, _field(denom, BTermRight), S),
-									not _unequal(BTermLeft, BTermRight, S),
-									_holds(DivLeft, _field(numer, NumLeft), S),
-									_holds(DivRight, _field(numer, NumRight), S),
-									_holds(NumLeft, _field(nodetype, poly), S),
-									_holds(NumRight, _field(nodetype, poly), S).
-								% 2 kids case
-_update(PlusNode, _field(nodeoper, div), S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S).
-_introduce(PlusNode, _field(num, DivLeft), S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S).
-_introduce(PlusNode, _field(denom, DivRight), S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S).
+%%_applicable(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S)	%%
+								%%:-	_holds(PlusNode, _field(nodeoper, add), S),%%
+									%%_holds(PlusNode, _field(activechild, DivLeft), S),%%
+									%%_holds(PlusNode, _field(activechild, DivRight), S),%%
+									%%_holds(DivLeft, _field(nodeoper, div), S),%%
+									%%_holds(DivRight, _field(nodeoper, div), S),%%
+									%%_holds(DivLeft, _field(denom, BTermLeft), S),%%
+									%%_holds(DivRight, _field(denom, BTermRight), S),%%
+									%%not _unequal(BTermLeft, BTermRight, S),%%
+									%%_holds(DivLeft, _field(numer, NumLeft), S),%%
+									%%_holds(DivRight, _field(numer, NumRight), S),%%
+									%%_holds(NumLeft, _field(nodetype, poly), S),%%
+									%%_holds(NumRight, _field(nodetype, poly), S).%%
+								%%% 2 kids case%%
+%%_update(PlusNode, _field(nodeoper, div), S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S).%%
+%%_introduce(PlusNode, _field(num, DivLeft), S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S).%%
+%%_introduce(PlusNode, _field(denom, DivRight), S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S).%%
 
-% denom 
-_deleteNodeAndChildren(DivRight, S)		:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S).
-_inheritFrom(DivRight, BTermLeft, S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S),
-								_holds(DivRight, _field(denom, BTermLeft), S).
-_deleteNodeAndChildren(DivLeft, S)		:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S).
-_inheritFrom(DivLeft, NumLeft, S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S),
-										_holds(DivLeft, _field(numer, NumLeft), S).
-_inheritFrom(DivLeft, NumRight, S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S),
-										_holds(DivRight, _field(numer, NumRight), S).
-%%XXX: SUPER MEGA WARNING, numterms will be incorrect given the above!%%
+%%% denom %%
+%%_deleteNodeAndChildren(DivRight, S)		:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S).%%
+%%_inheritFrom(DivRight, BTermLeft, S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S),%%
+								%%_holds(DivRight, _field(denom, BTermLeft), S).%%
+%%_deleteNodeAndChildren(DivLeft, S)		:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S).%%
+%%_inheritFrom(DivLeft, NumLeft, S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S),%%
+										%%_holds(DivLeft, _field(numer, NumLeft), S).%%
+%%_inheritFrom(DivLeft, NumRight, S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S),%%
+										%%_holds(DivRight, _field(numer, NumRight), S).%%
+%%%XXX: SUPER MEGA WARNING, numterms will be incorrect given the above!%%%
 
 
