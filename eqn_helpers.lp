@@ -54,9 +54,34 @@ _introduce(Frac, _field(monomof, 10), S) 			:-	_inheritFromOne(Frac, S).
 _introduce(Frac, _field(numterms, 1), S)			:-	_inheritFromOne(Frac, S).
 _introduce(Frac, _field(active), S)					:-	_inheritFromOne(Frac, S).
 
-% deleteChildNode -- delete subtree rooted at child position
+	% deleteChildNode -- delete subtree rooted at child position
+	% if only one child left, then inherit from it and delete it
 _deleteNodeAndChildren(Child, S)					:-	_deleteChildNode(Parent, Child, S).
 _remove(Parent, _field(activechild, Child), S) 		:-	_deleteChildNode(Parent, Child, S).
 _update(Parent, _field(numchildren, Children - 1), S) 
 													:-	_deleteChildNode(Parent, Child, S),
-														_holds(Parent, _field(numchildren, Children), S).
+														_holds(Parent, _field(numchildren, Children), S),
+														Children > 2 .
+_inheritFromAndDelete(Parent, Child2, S)
+													:-	_deleteChildNode(Parent, Child, S),
+														_holds(Parent, _field(numchildren, 2), S),
+														_holds(Parent, _field(activeChild, Child2), S),
+														Child != Child2.
+_inheritFrom(Inheritor, Original, S)				:-	_inheritFromAndDelete(Inheritor, Original, S).
+_deleteNodeAndChildren(Original, S)					:-	_inheritFromAndDelete(Inheritor, Original, S).
+
+								% inheriting from a node
+_deleteNode(ToInherit, S)	:-	_inheritFrom(ToInherit, Original, S).
+_introduce(ToInherit, _field(FieldName, FieldValue), S)	
+													:-	_inheritFrom(ToInherit, Original, S),
+														_holds(Original, _field(FieldName, FieldValue), S),
+														FieldName != activechild.
+% each of your children must inherit from the appropriate child of Original
+_inheritFrom(InheritChild, OrigChild, S)	
+													:-	_inheritFrom(_node(InheritNum, ISide), _node(OrigNum, OrigSide), S),
+														_holds(Original, _field(activechild, _node(OrigChildNum, OrigSide), S),
+														InheritChildNum = OrigChildNum - OrigNum*(max_terms + aux_terms) + InheritNum*(max_terms + aux_terms),
+														InheritChild = _node(InheritChildNum, ISide),
+														OrigChild = _node(OrigChildNum, OrigSide).
+
+
