@@ -28,6 +28,34 @@ _deleteChildNode(Denom, CTermBottom, S)	:-	_doAction(_action(fracCancel, _data(C
 %================================================================================
 
 %================================================================================
+% FracMult: (A/B)*(C/D) --> (A*C)/(B*D)
+%================================================================================
+% 						### RULE CONDITIONS ###
+_applicable(_action(fracMult, _data(MulNode, FracLeft, FracRight)), S)	
+								:-	_opSubtree(MulNode, FracLeft, FracRight, mul, div, div, S),
+									_holds(MulNode, _field(numchildren, 2), S). % TODO: temporary fix for bug where subtree has more than two children
+
+% 						### APPLYING THE RULE ###
+% make root node a fraction and set its numerator/denominator
+_introduce(MulNode, _field(numer, FracLeft), S)		:-	_doAction(_action(fracMult, _data(MulNode, FracLeft, FracRight)), S).
+_introduce(MulNode, _field(denom, FracRight), S)	:-	_doAction(_action(fracMult, _data(MulNode, FracLeft, FracRight)), S).
+_update(MulNode, _field(nodeoper, div), S)			:-	_doAction(_action(fracMult, _data(MulNode, FracLeft, FracRight)), S).
+
+% make left fraction the numerator 
+_removeFracFields(FracLeft, S)						:-	_doAction(_action(fracMult, _data(MulNode, FracLeft, FracRight)), S).
+_update(FracLeft, _field(nodeoper, mul), S)			:-	_doAction(_action(fracMult, _data(MulNode, FracLeft, FracRight)), S).
+
+% make right fraction the numerator 
+_removeFracFields(FracRight, S)						:-	_doAction(_action(fracMult, _data(MulNode, FracLeft, FracRight)), S).
+_update(FracRight, _field(nodeoper, mul), S)		:-	_doAction(_action(fracMult, _data(MulNode, FracLeft, FracRight)), S).
+
+% swap left denom and right num values to get correct products
+_swapNodes(LeftDenom, RightNum, S)					:-	_doAction(_action(fracMult, _data(MulNode, FracLeft, FracRight)), S),
+														_holds(FracLeft, _field(denom, LeftDenom), S),
+														_holds(FracRight, _field(numer, RightNum), S).
+
+
+%================================================================================
 % AddfracSameDenom: A/B + C/B--> (A+C)/B
 %================================================================================
 %%_applicable(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S)	%%

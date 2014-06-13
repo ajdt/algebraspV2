@@ -87,3 +87,18 @@ _inheritFrom(InheritChild, OrigChild, S)
 														OrigChild = _node(OrigChildNum, OrigSide).
 
 
+%================================================================================
+% SUBTREE PROPERTIES
+%================================================================================
+_opSubtree(Root, Left, Right, RootOp, LeftOp, RightOp, S)	:-	_holds(Root, _field(nodeoper, RootOp), S),
+																_holds(Left, _field(nodeoper, LeftOp), S),
+																_holds(Root, _field(activechild, Left), S),
+																_holds(Right, _field(nodeoper, RightOp), S),
+																_holds(Root, _field(activechild, Right), S),
+																_lessThan(Left, Right).
+_remove(Frac, _field(numer, Num), S)				:-	_removeFracFields(Frac, S),
+														_holds(Frac, _field(numer, Num), S).
+_remove(Frac, _field(denom, Denom), S)				:-	_removeFracFields(Frac, S),
+														_holds(Frac, _field(denom, Denom), S).
+_inheritFrom(Node1, Node2, S)					  :- _swapNodes(Node1, Node2, S).
+_inheritFrom(Node2, Node1, S)					  :- _swapNodes(Node1, Node2, S).
