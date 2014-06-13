@@ -9,7 +9,7 @@
 % constants governing monomial values and tree depth
 #const max_integer	= 5.
 #const max_degree	= 2.		% going up to 3rd deg
-#const max_depth 	= 1.		% shouldn't be bigger than 2
+#const max_depth 	= 2.		% shouldn't be bigger than 2
 #const max_terms	= 2.		% max number of children a (3 should be large enough)
 #const max_steps 	= 2. % max number of actions until a solution is reached
 

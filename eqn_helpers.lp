@@ -79,7 +79,7 @@ _introduce(ToInherit, _field(FieldName, FieldValue), S)
 % each of your children must inherit from the appropriate child of Original
 _inheritFrom(InheritChild, OrigChild, S)	
 													:-	_inheritFrom(_node(InheritNum, ISide), _node(OrigNum, OrigSide), S),
-														_holds(Original, _field(activechild, _node(OrigChildNum, OrigSide), S),
+														_holds(Original, _field(activechild, _node(OrigChildNum, OrigSide)), S),
 														InheritChildNum = OrigChildNum - OrigNum*(max_terms + aux_terms) + InheritNum*(max_terms + aux_terms),
 														InheritChild = _node(InheritChildNum, ISide),
 														OrigChild = _node(OrigChildNum, OrigSide).

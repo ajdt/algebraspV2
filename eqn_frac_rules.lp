@@ -31,16 +31,16 @@ _deleteChildNode(Denom, CTermBottom, S)	:-	_doAction(_action(fracCancel, _data(C
 % AddfracSameDenom: A/B + C/B--> (A+C)/B
 %================================================================================
 _applicable(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S)	
-								:-	_holds(PlusNode, _field(nodeoper, div), S),
+								:-	_holds(PlusNode, _field(nodeoper, add), S),
 									_holds(PlusNode, _field(activechild, DivLeft), S),
 									_holds(PlusNode, _field(activechild, DivRight), S),
 									_holds(DivLeft, _field(nodeoper, div), S),
 									_holds(DivRight, _field(nodeoper, div), S),
 									_holds(DivLeft, _field(denom, BTermLeft), S),
 									_holds(DivRight, _field(denom, BTermRight), S),
-									_equal(BTermLeft, BTermRight, S),
-									_holds(DivLeft, _field(num, NumLeft), S),
-									_holds(DivRight, _field(num, NumRight), S),
+									not _unequal(BTermLeft, BTermRight, S),
+									_holds(DivLeft, _field(numer, NumLeft), S),
+									_holds(DivRight, _field(numer, NumRight), S),
 									_holds(NumLeft, _field(nodetype, poly), S),
 									_holds(NumRight, _field(nodetype, poly), S).
 								% 2 kids case
@@ -55,8 +55,8 @@ _inheritFrom(DivRight, BTermLeft, S)	:-	_doAction(_action(addFracSameDenom, _dat
 _deleteNodeAndChildren(DivLeft, S)		:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S).
 _inheritFrom(DivLeft, NumLeft, S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S),
 										_holds(DivLeft, _field(numer, NumLeft), S).
-_inheritFrom(DivLeft, NumLeft, S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S),
+_inheritFrom(DivLeft, NumRight, S)	:-	_doAction(_action(addFracSameDenom, _data(PlusNode, DivLeft, DivRight)), S),
 										_holds(DivRight, _field(numer, NumRight), S).
-%% XXX: SUPER MEGA WARNING, numterms will be incorrect given the above!
+%%XXX: SUPER MEGA WARNING, numterms will be incorrect given the above!%%
 
 
