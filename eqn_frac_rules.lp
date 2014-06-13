@@ -54,6 +54,22 @@ _swapNodes(LeftDenom, RightNum, S)					:-	_doAction(_action(fracMult, _data(MulN
 														_holds(FracLeft, _field(denom, LeftDenom), S),
 														_holds(FracRight, _field(numer, RightNum), S).
 
+%================================================================================
+% FracDiv: (A)/(C/D) --> (A)*(D/C)
+%================================================================================
+_applicable(_action(fracDiv, _data(RootDiv, LeftDenom)), S)	
+								:-	_holds(RootDiv, _field(nodeoper, div), S),
+									_holds(RootDiv, _field(denom, LeftDenom), S),
+									_holds(LeftDenom, _field(nodeoper, div), S).
+									
+% 						### APPLYING THE RULE ###
+% convert root to multiply node, and take reciprocal of fraction rooted at 'LeftDenom'
+_update(RootDiv, _field(nodeoper, mul), S)			:-	_doAction(_action(fracDiv, _data(RootDiv, LeftDenom)), S).
+_removeFracFields(RootDiv, S)						:-	_doAction(_action(fracDiv, _data(RootDiv, LeftDenom)), S).
+_swapNodes(Numer, Denom, S)							:-	_doAction(_action(fracDiv, _data(RootDiv, LeftDenom)), S),
+														_holds(LeftDenom, _field(numer, Numer), S),
+														_holds(LeftDenom, _field(denom, Denom), S).
+
 
 %================================================================================
 % AddfracSameDenom: A/B + C/B--> (A+C)/B

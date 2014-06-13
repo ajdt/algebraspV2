@@ -40,6 +40,8 @@ _numChildren(Node, 2)								:-	_active(Node), _nodeOper(Node, div).
 % activating children for operators
 _activeChild( _node(Parent, Side), _node(ChildID, Side) )	:-	_active(_node(Parent, Side)),
 														_numChildren(_node(Parent, Side), Num),
+														_node(Parent, Side),
+														_node(ChildID, Side),
 														ChildCount = 1..Num,
 														ChildID = Parent*(max_terms + aux_terms) + ChildCount .
 _active(Child)	:-	_activeChild(Parent, Child).
