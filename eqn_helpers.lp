@@ -16,6 +16,10 @@ _validChildOf(_node(Parent, Side), _node(Child, Side))
 							:-	_node(Parent, Side), _node(Child, Side),
 								Child > Parent*(max_terms + aux_terms),
 								Child <= Parent*(max_terms + aux_terms) + (max_terms +aux_terms).
+_childNum(_node(Parent, Side), _node(Child, Side), Child - Parent*(max_terms + aux_terms) )	
+							:-	_node(Parent, Side), _node(Child, Side),
+								Child > Parent*(max_terms + aux_terms),
+								Child <= Parent*(max_terms + aux_terms) + (max_terms +aux_terms).
 %================================================================================
 % POLYNOMIAL PROPERTIES
 %================================================================================
@@ -72,6 +76,7 @@ _deleteNodeAndChildren(Original, S)					:-	_inheritFromAndDelete(Inheritor, Orig
 
 								% inheriting from a node
 _deleteNode(ToInherit, S)	:-	_inheritFrom(ToInherit, Original, S).
+_introduce(ToInherit, _field(active), S)			:-	_inheritFrom(ToInherit, Original, S). 
 _introduce(ToInherit, _field(FieldName, FieldValue), S)	
 													:-	_inheritFrom(ToInherit, Original, S),
 														_holds(Original, _field(FieldName, FieldValue), S),
@@ -90,6 +95,62 @@ _inheritFrom(InheritChild, OrigChild, S)
 %================================================================================
 % SUBTREE PROPERTIES
 %================================================================================
+% subtree equality
+_unequal(Tree1, Tree2, S)		:-	_holds(Tree1, _field(numchildren, Children1), S),
+								_holds(Tree2, _field(numchildren, Children2), S),
+								Children1 != Children2.
+_unequal(Tree1, Tree2, S)		:-	_holds(Tree1, _field(nodeoper, Op1), S),
+								_holds(Tree2, _field(nodeoper, Op2), S),
+								Op1 != Op2.
+_unequal(Tree1, Tree2, S)		:-	_holds(Tree1, _field(activechild, Child1), S),
+								_holds(Tree2, _field(activechild, Child2), S),
+								_equal(Child1, Child2, S).
+_equalToChildOf(Node, Subtree, S) :-	_holds(Node, _field(active), S),
+										_holds(NodeParent, _field(activechild, Node), S),
+										_holds(Subtree, _field(activechild, Child), S),
+										Child != Node,
+										NodeParent != Subtree,
+										not _unequal(Node, Child, S).
+
+_unequal(Subtree1, Subtree2, S)		:-	_holds(Subtree1, _field(active), S),
+										_holds(Subtree1, _field(activechild, Child), S),
+										_holds(Subtree2, _field(active), S),
+										not _equalToChildOf(Child, Subtree2, S).
+
+
+
+%================================================================================
+% multiply a subtree by another tree
+%================================================================================
+_addChild(Node, Multiplier, S)		:-	_multiplyWith(Node, Multiplier, S),
+										_holds(Node, _field(nodeoper, mul), S).
+_multiplyWith(Numer, Multiplier, S)	:-	_multiplyWith(Node, Multiplier, S),
+										_holds(Node, _field(nodeoper, div), S),
+										_holds(Node, _field(numer, Numer), S).
+
+_convertToMulNode(Node, Multiplier, S)		:-	_multiplyWith(Node, Multiplier, S),
+												_holds(Node, _field(nodeoper, Op), S),
+												Op != div, Op != mul.
+_deleteNodeAndChildren(Node, S)				:-	_convertToMulNode(Node, Multiplier, S).
+_introduce(Node, _field(nodeoper, mul), S)	:-	_convertToMulNode(Node, Multiplier, S).
+_activateNodeWithChildren(Node, 2, S)		:-	_convertToMulNode(Node, Multiplier, S).
+_inheritFrom(Child1, Node, S)				:-	_convertToMulNode(Node, Multiplier, S),
+												_childNum(Node, Child1, 1).
+_inheritFrom(Child2, Multiplier, S)			:-	_convertToMulNode(Node, Multiplier, S),
+												_childNum(Node, Child2, 2).
+
+_introduce(Node, _field(active), S) 		:- _activateNodeWithChildren(Node, Kids, S).
+_introduce(Node, _field(numchildren, Kids), S) :- _activateNodeWithChildren(Node, Kids, S).
+
+
+% adding a new child
+_inheritFrom(NewChild, ToAdd, S)	:-	_addChild(Parent, ToAdd, S),
+										_holds(Parent, _field(numchildren, Kids), S),
+										_childNum(Parent, NewChild, Kids + 1).
+_update(Parent, _field(numchildren, Kids+1), S)	:-	_addChild(Parent, ToAdd, S),
+													_holds(Parent, _field(numchildren, Kids), S).
+
+
 _opSubtree(Root, Left, Right, RootOp, LeftOp, RightOp, S)	:-	_holds(Root, _field(nodeoper, RootOp), S),
 																_holds(Left, _field(nodeoper, LeftOp), S),
 																_holds(Root, _field(activechild, Left), S),

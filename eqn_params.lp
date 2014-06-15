@@ -13,7 +13,7 @@
 #const max_terms	= 2.		% max number of children a (3 should be large enough)
 #const max_steps 	= 2. % max number of actions until a solution is reached
 
-#const aux_terms	= 3.
+#const aux_terms	= 2.
 #const max_polynoms = 10.
 
 % numbers are integers and rationals

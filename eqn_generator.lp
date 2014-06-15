@@ -8,13 +8,18 @@
 %
 
 % basic node attributes
-_side(left;right).
+_side(left;right;aux).
 _type(oper;poly).
 _operator(add;mul;div).
 
 % nodes
 _nodeNum(0..42). % figure out better way to express this
-_node(Num, Side)	 		:-	_side(Side), _nodeNum(Num).
+_node(Num, Side)	 		:-	_side(Side), _nodeNum(Num), Side != aux.
+
+% auxillary nodes used to form temporary expressions
+#const aux_nodes=21.
+_auxNum(0..aux_nodes).
+_node(Num, aux)				:-	_auxNum(Num).
 
 
 _root(_node(0, left) ; _node(0, right) ). % represent the left and right sides
